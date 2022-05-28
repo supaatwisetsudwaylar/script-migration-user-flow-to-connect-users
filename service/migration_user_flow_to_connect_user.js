@@ -1,7 +1,7 @@
 const { sequelize } = require('../database/models');
 const { models } = sequelize;
 const moment = require('moment');
-const MigrationUserFlowToConnectUserByUserFlowID = async (id) => {
+const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
     try {
 
         const dateNow = moment().unix();
@@ -90,6 +90,23 @@ const MigrationUserFlowToConnectUserByUserFlowID = async (id) => {
     }
 }
 
+const migrationUserFlowToConnectUser = async () => {
+    try {
+
+        const userIDs = await models.UserFlow.findAll({
+            attributes: ["id"],
+        }).then(r => r[0]? r.map(n => n.id): []);
+
+        for (let i = 0; i <= userIDs.length; i++) {
+            await migrationUserFlowToConnectUserByUserFlowID(userIDs[i]);
+        }
+
+    } catch(e) {
+        console.error(e);
+    }
+}
+
 module.exports = {
-    MigrationUserFlowToConnectUserByUserFlowID,
+    migrationUserFlowToConnectUserByUserFlowID,
+    migrationUserFlowToConnectUser,
 }
