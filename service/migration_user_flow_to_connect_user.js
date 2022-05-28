@@ -76,12 +76,12 @@ const MigrationUserFlowToConnectUserByUserFlowID = async (id) => {
             organization_id: connectOrganizations.id,
             user_id: connectUser.id,
             role_id: 1,
-            platform: "CONNECT",
+            platform: "connect",
         })
 
         await models.ConnectOrganizationPlatform.create({
             organization_id: connectOrganizations.id,
-            platform: "CONNECT"
+            platform: "connect"
         });
 
 
