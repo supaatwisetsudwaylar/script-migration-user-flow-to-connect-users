@@ -1,6 +1,7 @@
 const { sequelize } = require('../database/models');
 const { models } = sequelize;
 const moment = require('moment');
+const { v4: uuidV4 } = require('uuid');
 const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
     try {
 
@@ -63,7 +64,7 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
         })
 
         const connectOrganizations = await models.ConnectOrganizations.create({
-            name: userFlow?.contact?.name || "",
+            name: userFlow?.contact?.name || uuidV4(),
             phone_no: (userFlow.contact && userFlow.contact.pre_phone_no && userFlow.contact.post_phone_no)? userFlow.contact.pre_phone_no + userFlow.contact.post_phone_no :null,
             business_type_id: null,
             registered_number: userFlow?.customer?.tax_id || null,

@@ -7,7 +7,7 @@
 const service = require('./service/migration_user_flow_to_connect_user');
 
 async function main() {
-    await service.migrationUserFlowToConnectUser()
+    await service.migrationUserFlowToConnectUserByUserFlowID(6)
 }
 
 
