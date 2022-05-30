@@ -40,6 +40,7 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
             is_verify: false,
             is_kyc: false,
             metadata: userFlow.metadata,
+            platform: "connect",
             created_at: dateNow,
         });
 
@@ -78,7 +79,6 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
             organization_id: connectOrganizations.id,
             user_id: connectUser.id,
             role_id: 1,
-            platform: "connect",
         })
 
         await Staging.ConnectOrganizationPlatform.create({

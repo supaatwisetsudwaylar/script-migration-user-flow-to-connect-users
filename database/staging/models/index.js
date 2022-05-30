@@ -7,17 +7,17 @@ require('pg').defaults.parseInt8 = true
 const basename = path.basename(__filename);
 const db = {};
 
-// const database = "staging";
-// const username = "postgres";
-// const password = "3LGdhu30CAoroket";
-// const port = 5432;
-// const host = "35.197.148.242";
-
-const database = "prod";
+const database = "staging";
 const username = "postgres";
-const password = "nanana";
+const password = "3LGdhu30CAoroket";
 const port = 5432;
-const host = "127.0.0.1";
+const host = "35.197.148.242";
+
+// const database = "prod";
+// const username = "postgres";
+// const password = "nanana";
+// const port = 5432;
+// const host = "127.0.0.1";
 
 const sequelize = new Sequelize(database, username, password, {
   host: host,

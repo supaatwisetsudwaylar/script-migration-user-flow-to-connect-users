@@ -17,10 +17,6 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         field: "role_id",
       },
-      platform: {
-        type: DataTypes.STRING,
-        primaryKey: true,
-      },
     },
     {
       underscored: false,

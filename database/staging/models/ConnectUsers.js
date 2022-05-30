@@ -45,6 +45,9 @@ module.exports = (sequelize, DataTypes) => {
               this.setDataValue("metadata", JSON.stringify(value));
             },
           },
+          platform: {
+            type: DataTypes.STRING,
+          },
           max_session: {
             type: DataTypes.INTEGER,
             field: "max_session",
