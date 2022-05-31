@@ -11,7 +11,13 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
             include: [
                 {
                     model: Prod.Customer,
-                    as: "customer"
+                    as: "customer",
+                    include: [
+                        {
+                            model: Prod.Contact,
+                            as: "contact",
+                        }
+                    ]
                 },
                 {
                     model: Prod.Contact,
@@ -31,6 +37,14 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
 
         if (!userFlow) return;
 
+        const isExistsUser = await Staging.ConnectUsers.findOne({
+            attributes: ["id"],
+            where: {
+                id: userFlow.id
+            }
+        }).then(r => r? true: false);
+        if (isExistsUser) return;
+
         const connectUser = await Staging.ConnectUsers.create({
             id: userFlow.id,
             username: userFlow.username,
@@ -46,9 +60,9 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
 
         await Staging.ConnectProfiles.create({
             title: userFlow?.contact?.title_name?.initials_th || null,
-            first_name: userFlow?.contact?.firstname || null,
+            first_name: userFlow.contact? (userFlow.contact?.firstname || null) : (userFlow.customer?.contact?.firstname || null),
             middle_name: null,
-            last_name: userFlow?.contact?.lastname || null,
+            last_name: userFlow.contact? (userFlow.contact?.lastname || null) : (userFlow.customer?.contact?.lastname || null),
             facebook: userFlow?.facebook || null,
             email: userFlow?.email || null,
             // phone_no: (userFlow.contact && userFlow.contact.pre_phone_no && userFlow.contact.post_phone_no)? userFlow.contact.pre_phone_no + userFlow.contact.post_phone_no :null,
@@ -56,7 +70,7 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
             citizen_id: userFlow?.customer?.id_card || null,
             passport_id: null,
             address_id: null,
-            address_detail: userFlow?.contact?.address || null,
+            address_detail: userFlow.contact? (userFlow.contact?.address || null): (userFlow.customer?.contact?.address || null),
             sex_id: null,
             occupation_id: null,
             range_income_id: null,
@@ -66,11 +80,11 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
         })
 
         const connectOrganizations = await Staging.ConnectOrganizations.create({
-            name: userFlow?.contact?.name || uuidV4(),
-            phone_no: (userFlow.contact && userFlow.contact.pre_phone_no && userFlow.contact.post_phone_no)? userFlow.contact.pre_phone_no + userFlow.contact.post_phone_no :null,
+            name: userFlow.contact? (userFlow.contact?.name + " - " + uuidV4() || uuidV4()) : (userFlow.customer?.contact?.name + " - " + uuidV4() || uuidV4()),
+            phone_no: (userFlow.contact || userFlow.customer?.contact)? (userFlow.contact || userFlow.customer?.contact).pre_phone_no + ((userFlow.contact || userFlow.customer?.contact)).post_phone_no :null,
             business_type_id: null,
-            registered_number: userFlow?.customer?.tax_id || null,
-            address_detail: userFlow?.customer?.biling_address || null,
+            registered_number: userFlow.customer?.tax_id || null,
+            address_detail: userFlow.customer?.biling_address || null,
             address_id: null,
             created_at: dateNow
         });
@@ -89,6 +103,7 @@ const migrationUserFlowToConnectUserByUserFlowID = async (id) => {
 
     } catch (e) {
         console.error(e)
+        throw e
     }
 }
 
@@ -105,6 +120,7 @@ const migrationUserFlowToConnectUser = async () => {
 
     } catch(e) {
         console.error(e);
+        throw e
     }
 }
 
