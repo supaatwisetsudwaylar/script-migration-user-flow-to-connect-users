@@ -114,7 +114,7 @@ const migrationUserFlowToConnectUser = async () => {
             attributes: ["id"],
         }).then(r => r[0]? r.map(n => n.id): []);
 
-        for (let i = 0; i <= userIDs.length; i++) {
+        for (let i = 0; i < userIDs.length; i++) {
             await migrationUserFlowToConnectUserByUserFlowID(userIDs[i]);
         }
 
