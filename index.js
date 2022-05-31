@@ -5,9 +5,12 @@
 // console.log(text);
 
 const service = require('./service/migration_user_flow_to_connect_user');
+const serviceVehicleEtcToOrg = require('./service/migration_vehicle_etc_to_organization');
 
 async function main() {
-    await service.migrationUserFlowToConnectUser()
+    // await service.migrationUserFlowToConnectUser()
+
+    await serviceVehicleEtcToOrg.migrationVehicleEtcToOrganization();
 }
 
 
