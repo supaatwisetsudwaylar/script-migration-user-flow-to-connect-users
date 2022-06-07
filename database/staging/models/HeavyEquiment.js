@@ -9,7 +9,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         organization_id: {
             type: DataTypes.INTEGER,
-        }
+        },
+        iot_package_id: {
+          type: DataTypes.INTEGER,
+        },
+        mdvr_package_id: {
+          type: DataTypes.INTEGER,
+        },
+        serial_camera: {
+          type: DataTypes.STRING,
+        },
       },
       {
         underscored: true,

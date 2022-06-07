@@ -9,7 +9,34 @@ module.exports = (sequelize, DataTypes) => {
         },
         organization_id: {
             type: DataTypes.INTEGER,
-        }
+        },
+        attributes: {
+          type: DataTypes.STRING,
+          field: "attributes",
+          get() {
+            try {
+              const value = this.getDataValue("attributes");
+              if (!value) {
+                return {};
+              }
+              return value;
+            } catch (err) {
+              return {};
+            }
+          },
+          set(value) {
+            this.setDataValue("attributes", JSON.stringify(value));
+          },
+        },
+        iot_package_id: {
+          type: DataTypes.INTEGER,
+        },
+        mdvr_package_id: {
+          type: DataTypes.INTEGER,
+        },
+        serial_camera: {
+          type: DataTypes.STRING,
+        },
       },
       {
         underscored: true,
