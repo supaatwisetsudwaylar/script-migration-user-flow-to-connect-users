@@ -13,7 +13,11 @@ async function main() {
     // const result = servicePackage.getDataForXlsx(path.join(__dirname, './package.xlsx'))
     // await servicePackage.migrateDataToPackage(result);
 
-    await serviceSerialCamera.migrateSerialCamera();
+    // await serviceSerialCamera.migrateSerialCamera();
+
+    // await serviceVehicleEtcToOrg.migrateOrganizationUnion();
+
+    await serviceVehicleEtcToOrg.migrateNameOrganization();
 }
 
 

@@ -1,7 +1,8 @@
-const { Op } = require('sequelize');
+const { Op, or } = require('sequelize');
 const { sequelize: { models: Prod } } = require('../database/prod/models');
 const { sequelize: { models: Staging } } = require('../database/staging/models');
 
+const { sequelize } = require('../database/prod/models');
 const findOrgID = async (userID) => {
     const orgID = await Prod.ConnectUsers.findOne({
         attributes: ["id"],
@@ -117,7 +118,129 @@ const migrationVehicleEtcToOrganization = async () => {
     }
 }
 
+const migrateOrganizationUnion = async () => {
+    try {
+        let result = await sequelize.query(`
+            select split_part(name, '-', 1) as s_name, count(*) as count
+            from connect_organizations
+            group by s_name having count(*) > 1
+            order by count desc
+        `)
+
+        result = result[0];
+        for (let index = 0; index < result.length; index++) {
+            let raw = result[index];
+            let s_name = raw.s_name.trim();
+            if (['', 'undefined'].includes(s_name)) {
+                continue;
+            }
+            
+            let org = await sequelize.query(`
+                select id, name
+                from connect_organizations
+                where name like '%${s_name}%'
+            `);
+
+            org = org[0]
+
+            let baseOrg = org[0];
+            let overOrg = org.splice(1, org.length);
+
+
+            await Prod.Vehicle.update({
+                organization_id: baseOrg.id
+            }, {
+                where: {
+                    organization_id: {
+                        [Op.in]: overOrg.map(n => n.id)
+                    }
+                }
+            })
+
+            await Prod.HeavyEquiment.update({
+                organization_id: baseOrg.id
+            }, {
+                where: {
+                    organization_id: {
+                        [Op.in]: overOrg.map(n => n.id)
+                    }
+                }
+            })
+
+            await Prod.Trailer.update({
+                organization_id: baseOrg.id
+            }, {
+                where: {
+                    organization_id: {
+                        [Op.in]: overOrg.map(n => n.id)
+                    }
+                }
+            })
+            
+            await Prod.ConnectOrganizationsUsers.update({
+                organization_id: baseOrg.id
+            }, {
+                where: {
+                    organization_id: {
+                        [Op.in]: overOrg.map(n => n.id)
+                    }
+                }
+            })
+
+            await Prod.ConnectOrganizations.destroy({
+                where: {
+                    id: {
+                        [Op.in]: overOrg.map(n => n.id)
+                    }
+                }
+            })
+        }
+
+    } catch (e) {
+        console.error(e);
+        throw e
+    }
+}
+
+const migrateNameOrganization = async () => {
+    try {
+        let result = await sequelize.query(`
+            select split_part(name, '-', 1) as s_name, count(*) as count
+            from connect_organizations
+            group by s_name having count(*) = 1
+        `)
+
+        result = result[0];
+    
+        for (let index = 0; index < result.length; index++) {
+            let raw = result[index];
+            let s_name = raw.s_name.trim();
+
+            let org = await sequelize.query(`
+                select id, name
+                from connect_organizations
+                where name like '%${s_name}%'
+            `);
+
+            org = org[0][0];
+            let newName = org.name.split(' -')[0];
+            await Prod.ConnectOrganizations.update({
+                name: newName,
+            }, {
+                where: {
+                    id: org.id
+                }
+            })
+        }
+    } catch (e) {
+        console.error(e);
+        throw e
+    }
+}
+
 module.exports = {
     migrationVehicleEtcToOrganization,
-    migrationVehicleEtcToOrganizationByUserID
+    migrationVehicleEtcToOrganizationByUserID,
+    migrateOrganizationUnion,
+    migrateNameOrganization,
 }

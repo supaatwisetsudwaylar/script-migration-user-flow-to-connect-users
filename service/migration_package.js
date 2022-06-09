@@ -9,6 +9,9 @@ const {
 const moment = require("moment");
 const { Op } = require("sequelize");
 
+
+const endYear = 24;
+
 function getDataForXlsx(dir) {
   const wb = xlsx.readFile(dir, { cellDates: true });
 
@@ -50,7 +53,7 @@ async function migrateDataToPackage(data = []) {
       );
 
         let invoice = [];
-        for (y = 18; y <= 21; y++) {
+        for (y = 18; y <= endYear; y++) {
           for (let m = 0; m <= 12; m++) {
             if (_data[`${m}/${y}`]) {
               invoice = [
@@ -58,6 +61,7 @@ async function migrateDataToPackage(data = []) {
                 {
                   ref_type: "vehicle",
                   ref_id: vehicle.id,
+                  organization_id: vehicle.organization_id || null,
                   payment_date: moment(`${20 + y}-${m > 9 ? "0" + m : m}-01`),
                   price: _data[`${m}/${y}`]
                     ? parseFloat(_data[`${m}/${y}`].replace(",", ""))
